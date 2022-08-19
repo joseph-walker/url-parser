@@ -5,6 +5,6 @@ import { generateCstDts } from "chevrotain";
 import { productions } from "../src/parser";
 
 const dtsString = generateCstDts(productions);
-const dtsPath = resolve(__dirname + "/../src/cst.d.ts");
+const dtsPath = resolve(__dirname + "/../src/cst.ts");
 
 writeFileSync(dtsPath, dtsString);

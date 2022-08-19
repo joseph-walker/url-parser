@@ -10,8 +10,13 @@ class UrlParser extends CstParser {
 	}
 
 	public stateCity = this.RULE("stateCity", () => {
-		this.CONSUME1(Token.Identifier);
-		this.CONSUME2(Token.Identifier);
+		this.MANY1({
+			DEF: () => this.CONSUME1(Token.Identifier, { LABEL: "State" })
+		})
+		this.CONSUME(Token.Slash);
+		this.MANY2({
+			DEF: () => this.CONSUME2(Token.Identifier, { LABEL: "City" })
+		})
 		this.OR([
 			{ ALT: () => this.SUBRULE(this.allPropertyTypes) },
 			{ ALT: () => this.SUBRULE(this.singlePropertyType) },

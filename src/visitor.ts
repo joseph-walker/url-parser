@@ -15,8 +15,8 @@ class UrlVisitor extends BaseUrlVisitor {
 	}
 
 	public stateCity(children: StateCityCstChildren) {
-		const state = children.Identifier[0].image;
-		const city = children.Identifier[1].image;
+		const state = (children.State ?? []).map(i => i.image).join("-");
+		const city = (children.City ?? []).map(i => i.image).join("-");
 
 		const propertyTypes = this.visit(
 			children.allPropertyTypes ?? children.singlePropertyType!
@@ -36,7 +36,7 @@ class UrlVisitor extends BaseUrlVisitor {
 	}
 
 	public allPropertyTypes(children: AllPropertyTypesCstChildren) {
-		throw new Error("Method not implemented.");
+		return "all";
 	}
 }
 

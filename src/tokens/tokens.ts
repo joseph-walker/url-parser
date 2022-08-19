@@ -1,4 +1,7 @@
-import { createToken, Lexer } from "chevrotain";
+import {
+	createToken,
+	Lexer
+} from "chevrotain";
 
 export const Identifier = createToken({
 	name: "Identifier",
@@ -31,8 +34,7 @@ export const Condos = createToken({
 
 export const Slash = createToken({
 	name: "Slash",
-	pattern: /\//,
-	group: Lexer.SKIPPED
+	pattern: /\//
 });
 
 export const Dash = createToken({
