@@ -11,3 +11,5 @@ const rawHtml = createSyntaxDiagramsCode(
 const outPath = resolve(__dirname + "/../grammar.html");
 
 writeFileSync(outPath, rawHtml);
+
+console.log("Wrote grammar production to " + outPath);

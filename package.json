@@ -7,7 +7,12 @@
 	"author": "",
 	"license": "ISC",
 	"scripts": {
-		"test": "jest"
+		"test": "jest",
+		"dev": "concurrently --names \"grammar-diagram,serve\" --prefix-colors \"blue.bold,green.dim\" \"npm:watch:grammar-diagram\" \"npm:dev:serve\"",
+		"dev:serve": "ts-node ./scripts/serveGrammarDiagram.ts",
+		"dev:grammar-diagram": "ts-node ./scripts/generateGrammarDiagram.ts",
+		"dev:grammar-types": "ts-node ./scripts/generateGrammarTypes.ts",
+		"watch:grammar-diagram": "chokidar ./src/parser.ts -c \"npm run dev:grammar-diagram\" --initial"
 	},
 	"dependencies": {
 		"chevrotain": "^10.1.2"
@@ -15,6 +20,8 @@
 	"devDependencies": {
 		"@types/jest": "^28.1.7",
 		"@types/node": "^18.7.6",
+		"chokidar-cli": "^3.0.0",
+		"concurrently": "^7.3.0",
 		"jest": "^28.1.3",
 		"ts-jest": "^28.0.8",
 		"typescript": "^4.7.4"

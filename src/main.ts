@@ -1,7 +1,7 @@
 import { lexer } from "./lexer";
 import { parser } from "./parser";
 
-const input = "georgia/atlanta/buckhead-neighborhood/houses_condos_pet-friendly";
+const input = "georgia/atlanta-apartments?property-type=apartments";
 const lexed = lexer.tokenize(input);
 
 console.log("Lexed Output ------");
