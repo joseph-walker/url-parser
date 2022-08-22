@@ -2,7 +2,8 @@ import { parseUrl } from "../src/parseUrl";
 
 const validUrls = [
 	"georgia/atlanta-apartments",
-	"new-york/new-york-apartments"
+	"new-york/new-york-apartments",
+	"georgia/atlanta-apartments/dishwasher?property-type=apartments",
 ];
 
 const invalidUrls = [

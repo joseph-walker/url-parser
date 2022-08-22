@@ -25,6 +25,24 @@ class UrlParser extends CstParser {
 				ALT: () => this.SUBRULE(this.multiPropertyType)
 			}
 		]);
+		this.OPTION({
+			GATE: () => this.LA(1).tokenType === Token.QueryStart,
+			DEF: () => this.SUBRULE(this.queryString)
+		})
+	});
+
+	private queryString = this.RULE("queryString", () => {
+		this.CONSUME(Token.QueryStart);
+		this.MANY_SEP({
+			SEP: Token.Amp,
+			DEF: () => this.SUBRULE(this.queryParam)
+		});
+	});
+
+	private queryParam = this.RULE("queryParam", () => {
+		this.CONSUME1(Token.QueryIdentifier);
+		this.CONSUME(Token.Equals);
+		this.CONSUME2(Token.QueryIdentifier);
 	});
 
 	private singlePropertyTypeExcludingApartments = this.RULE("singlePropertyTypeExcludingApartments", () => {

@@ -5,9 +5,20 @@ export const Slash = createToken({
 	pattern: "/",
 });
 
+export const Amp = createToken({
+	name: "Amp",
+	pattern: "&"
+});
+
+export const Equals = createToken({
+	name: "Equals",
+	pattern: "="
+});
+
 export const QueryStart = createToken({
 	name: "QueryStart",
-	pattern: "?"
+	pattern: "?",
+	push_mode: "query_string_mode"
 });
 
 export const Dash = createToken({
@@ -23,9 +34,20 @@ export const Underscore = createToken({
 });
 
 export const matchIdentifier = (text: string, startOffset: number): [string] | null => {
+	const amp = 38;
 	const dash = 45;
-	const underscore = 95;
 	const slash = 47;
+	const equals = 61;
+	const question = 63;
+	const underscore = 95;
+	const delimiters = new Set([
+		amp,
+		dash,
+		slash,
+		equals,
+		question,
+		underscore,
+	]);
 	const A = 65;
 	const Z = 90;
 	const a = 97;
@@ -35,7 +57,7 @@ export const matchIdentifier = (text: string, startOffset: number): [string] | n
 		"houses",
 		"condos",
 		"townhouses",
-		"neighborhood"
+		"neighborhood",
 	]);
 
 	// Consume string chunks until you reach either a delimiter or a "-"
@@ -56,7 +78,7 @@ export const matchIdentifier = (text: string, startOffset: number): [string] | n
 		char = text.charCodeAt(pointer);
 
 		// Is it a delimiter or end of string?
-		if (char === dash || char === underscore || char === slash || Number.isNaN(char)) {
+		if (delimiters.has(char) || Number.isNaN(char)) {
 			if (reserved.has(chunk)) {
 				return [identifier.join("-")];
 			}
@@ -89,6 +111,11 @@ export const matchIdentifier = (text: string, startOffset: number): [string] | n
 export const Identifier = createToken({
 	name: "Identifier",
 	pattern: matchIdentifier,
+});
+
+export const QueryIdentifier = createToken({
+	name: "QueryIdentifier",
+	pattern: /[a-z\-]+/i
 });
 
 export const Apartments = createToken({

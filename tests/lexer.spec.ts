@@ -83,6 +83,47 @@ describe("URL Lexer", function () {
 		});
 	});
 
+	describe("query string lexing", function () {
+		it("lexes a query string param", function () {
+			const result = lexer.tokenize("?foo=bar");
+			const tokens = result.tokens;
+
+			expect(tokens).toHaveLength(4);
+			expect(tokens[0].tokenType).toBe(Token.QueryStart);
+			expect(tokens[1].tokenType).toBe(Token.QueryIdentifier);
+			expect(tokens[2].tokenType).toBe(Token.Equals);
+			expect(tokens[3].tokenType).toBe(Token.QueryIdentifier);
+		});
+
+		it("lexes a query string param with a complex identifier", function () {
+			const result = lexer.tokenize("?foo-bar=baz-bing");
+			const tokens = result.tokens;
+
+			expect(tokens).toHaveLength(4);
+			expect(tokens[1].tokenType).toBe(Token.QueryIdentifier);
+			expect(tokens[1].image).toBe("foo-bar");
+			expect(tokens[2].tokenType).toBe(Token.Equals);
+			expect(tokens[3].image).toBe("baz-bing");
+		});
+
+		it("lexes multiple query string params", function () {
+			const result = lexer.tokenize("?foo=bar&baz=bing");
+			const tokens = result.tokens;
+
+			expect(tokens).toHaveLength(8);
+		});
+
+		it("lexes words that are otherwise reserved", function () {
+			const result = lexer.tokenize("?property-type=apartments");
+			const tokens = result.tokens;
+
+			expect(tokens).toHaveLength(4);
+
+			expect(tokens[1].image).toBe("property-type");
+			expect(tokens[3].image).toBe("apartments");
+		});
+	});
+
 	describe("url stress testing", function () {
 		it("lexes a city/state single property type", function () {
 			const result = lexer.tokenize("georgia/atlanta-apartments/pet-friendly");
