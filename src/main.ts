@@ -1,8 +1,8 @@
 import { lexer } from "./lexer";
 import { parser } from "./parser";
-import { visitor } from "./visitor";
 
-const lexed = lexer.tokenize("georgia/new-york-apartments");
+const input = "georgia/atlanta/buckhead-neighborhood/houses_condos_pet-friendly";
+const lexed = lexer.tokenize(input);
 
 console.log("Lexed Output ------");
 console.log(
@@ -10,13 +10,14 @@ console.log(
 );
 
 parser.input = lexed.tokens;
-const result = parser.stateCity();
+const result = parser.url();
 
 if (parser.errors.length > 0) {
 	console.log("Errors ------");
 	console.log(parser.errors);
 } else {
-	const ast = visitor.visit(result);
 	console.log("AST ------");
-	console.log(ast);
+	console.log(
+		JSON.stringify(result, null, 4)
+	);
 }
