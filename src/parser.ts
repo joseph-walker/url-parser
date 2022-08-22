@@ -13,32 +13,42 @@ class UrlParser extends CstParser {
 		this.SUBRULE(this.stateCity);
 		this.OR([
 			{
-				// City-State Single Property Types
-				ALT: () => {
-					this.SUBRULE(this.singlePropertyType);
-					this.OPTION1({
-						DEF: () => this.SUBRULE1(this.hood)
-					});
-					this.OPTION2({
-						GATE: () => this.LA(1).tokenType === Token.Slash,
-						DEF: () => {
-							this.CONSUME1(Token.Slash);
-							this.SUBRULE1(this.refinements);
-						}
-					});
-				}
+				// City-State Single Property Types, excluding -apartments (may be multi)
+				ALT: () => this.SUBRULE(this.singlePropertyTypeExcludingApartments)
+			},
+			{
+				// -apartments as a single-property-type
+				ALT: () => this.SUBRULE(this.apartmentsAsSingleOrMultiPropertyType)
 			},
 			{
 				// City-State Multi Property Type
-				ALT: () => {
-					this.OPTION3({
-						DEF: () => this.SUBRULE2(this.hood)
-					});
-					this.CONSUME2(Token.Slash);
-					this.SUBRULE1(this.multiPropertyTypeWithRefinements);
-				}
+				ALT: () => this.SUBRULE(this.multiPropertyType)
 			}
 		]);
+	});
+
+	private singlePropertyTypeExcludingApartments = this.RULE("singlePropertyTypeExcludingApartments", () => {
+		this.SUBRULE(this.singlePropertyType);
+		this.OPTION({
+			DEF: () => this.SUBRULE(this.hood)
+		});
+		this.SUBRULE(this.optionalRefinements);
+	});
+
+	private apartmentsAsSingleOrMultiPropertyType = this.RULE("apartmentsAsSingleOrMultiPropertyType", () => {
+		this.CONSUME(Token.Apartments);
+		this.OPTION({
+			DEF: () => this.SUBRULE(this.hood)
+		});
+		this.SUBRULE(this.optionalRefinements);
+	});
+
+	private multiPropertyType = this.RULE("multiPropertyType", () => {
+		this.OPTION({
+			DEF: () => this.SUBRULE(this.hood)
+		});
+		this.CONSUME(Token.Slash);
+		this.SUBRULE(this.multiPropertyTypeWithRefinements);
 	});
 
 	private stateCity = this.RULE("stateCity", () => {
@@ -49,7 +59,6 @@ class UrlParser extends CstParser {
 
 	private singlePropertyType = this.RULE("singlePropertyType", () => {
 		this.OR([
-			{ ALT: () => this.CONSUME(Token.Apartments) },
 			{ ALT: () => this.CONSUME(Token.Townhouses) },
 			{ ALT: () => this.CONSUME(Token.Houses) },
 			{ ALT: () => this.CONSUME(Token.Condos) },
@@ -60,7 +69,7 @@ class UrlParser extends CstParser {
 		this.CONSUME(Token.Slash);
 		this.CONSUME(Token.Identifier, { LABEL: "Neighborhood" });
 		this.CONSUME(Token.Neighborhood);
-	})
+	});
 
 	private multiPropertyTypeWithRefinements = this.RULE("multiPropertyTypeWithRefinements", () => {
 		this.AT_LEAST_ONE({
@@ -77,6 +86,16 @@ class UrlParser extends CstParser {
 	private refinements = this.RULE("refinements", () => {
 		this.MANY({
 			DEF: () => this.CONSUME(Token.Refinement)
+		});
+	});
+
+	private optionalRefinements = this.RULE("optionalRefinements", () => {
+		this.OPTION({
+			GATE: () => this.LA(1).tokenType === Token.Slash,
+			DEF: () => {
+				this.CONSUME(Token.Slash);
+				this.SUBRULE(this.refinements);
+			}
 		});
 	});
 }

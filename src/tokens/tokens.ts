@@ -5,6 +5,11 @@ export const Slash = createToken({
 	pattern: "/",
 });
 
+export const QueryStart = createToken({
+	name: "QueryStart",
+	pattern: "?"
+});
+
 export const Dash = createToken({
 	name: "Dash",
 	pattern: "-",
