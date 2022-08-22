@@ -150,5 +150,17 @@ export const Neighborhood = createToken({
 
 export const Refinement = createToken({
 	name: "Refinement",
-	pattern: /dishwasher|pet-friendly/,
+	pattern: /dishwasher|pet-friendly|2-bedroom|studio/,
+});
+
+export const POI = createToken({
+	name: "POI",
+	pattern: function(text, startOffset) {
+		if (text[startOffset] === "p" && text?.[startOffset + 1] === "/") {
+			return ["p"];
+		}
+
+		return null;
+	},
+	longer_alt: Identifier
 });

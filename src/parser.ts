@@ -10,19 +10,60 @@ class UrlParser extends CstParser {
 	}
 
 	public url = this.RULE("url", () => {
-		this.SUBRULE(this.stateCity);
 		this.OR([
 			{
-				// City-State Single Property Types, excluding -apartments (may be multi)
-				ALT: () => this.SUBRULE(this.singlePropertyTypeExcludingApartments)
+				ALT: () => this.SUBRULE(this.poi)
 			},
 			{
-				// -apartments as a single-property-type
-				ALT: () => this.SUBRULE(this.apartmentsAsSingleOrMultiPropertyType)
+				ALT: () => this.SUBRULE(this.stateCity)
+			}
+		]);
+	});
+
+	public poi = this.RULE("poi", () => {
+		this.CONSUME(Token.POI);
+		this.CONSUME1(Token.Slash);
+		this.SUBRULE(this.stateCitySlug);
+		this.OR([
+			{
+				// City has single property type
+				ALT: () => {
+					this.SUBRULE1(this.propertyType);
+					this.CONSUME2(Token.Slash);
+					this.CONSUME1(Token.Identifier, { LABEL: "poi" });
+					this.SUBRULE1(this.optionalRefinements);
+				}
 			},
 			{
-				// City-State Multi Property Type
-				ALT: () => this.SUBRULE(this.multiPropertyType)
+				// City-State Multi Property Type Tokens
+				ALT: () => {
+					this.CONSUME3(Token.Slash);
+					this.CONSUME2(Token.Identifier, { LABEL: "poi" });
+					this.SUBRULE2(this.propertyType);
+					this.SUBRULE2(this.optionalRefinements);
+				}
+			},
+			{
+				ALT: () => {
+					this.CONSUME4(Token.Slash);
+					this.CONSUME3(Token.Identifier, { LABEL: "poi" });
+					this.CONSUME5(Token.Slash);
+					this.SUBRULE(this.multiPropertyTypeWithRefinements);
+				}
+			}
+		]);
+	});
+
+	public stateCity = this.RULE("stateCity", () => {
+		this.SUBRULE(this.stateCitySlug);
+		this.OR([
+			{
+				// City-State Single Property Type Token
+				ALT: () => this.SUBRULE(this.singlePropertyTypeWithHood)
+			},
+			{
+				// City-State Multi Property Type Tokens
+				ALT: () => this.SUBRULE(this.multiPropertyTypeWithHood)
 			}
 		]);
 		this.OPTION({
@@ -45,23 +86,15 @@ class UrlParser extends CstParser {
 		this.CONSUME2(Token.QueryIdentifier);
 	});
 
-	private singlePropertyTypeExcludingApartments = this.RULE("singlePropertyTypeExcludingApartments", () => {
-		this.SUBRULE(this.singlePropertyType);
+	private singlePropertyTypeWithHood = this.RULE("singlePropertyTypeWithHood", () => {
+		this.SUBRULE(this.propertyType);
 		this.OPTION({
 			DEF: () => this.SUBRULE(this.hood)
 		});
 		this.SUBRULE(this.optionalRefinements);
 	});
 
-	private apartmentsAsSingleOrMultiPropertyType = this.RULE("apartmentsAsSingleOrMultiPropertyType", () => {
-		this.CONSUME(Token.Apartments);
-		this.OPTION({
-			DEF: () => this.SUBRULE(this.hood)
-		});
-		this.SUBRULE(this.optionalRefinements);
-	});
-
-	private multiPropertyType = this.RULE("multiPropertyType", () => {
+	private multiPropertyTypeWithHood = this.RULE("multiPropertyTypeWithHood", () => {
 		this.OPTION({
 			DEF: () => this.SUBRULE(this.hood)
 		});
@@ -69,14 +102,15 @@ class UrlParser extends CstParser {
 		this.SUBRULE(this.multiPropertyTypeWithRefinements);
 	});
 
-	private stateCity = this.RULE("stateCity", () => {
+	private stateCitySlug = this.RULE("stateCitySlug", () => {
 		this.CONSUME1(Token.Identifier, { LABEL: "State" });
 		this.CONSUME1(Token.Slash);
 		this.CONSUME2(Token.Identifier, { LABEL: "City" });
 	});
 
-	private singlePropertyType = this.RULE("singlePropertyType", () => {
+	private propertyType = this.RULE("propertyType", () => {
 		this.OR([
+			{ ALT: () => this.CONSUME(Token.Apartments) },
 			{ ALT: () => this.CONSUME(Token.Townhouses) },
 			{ ALT: () => this.CONSUME(Token.Houses) },
 			{ ALT: () => this.CONSUME(Token.Condos) },
@@ -91,12 +125,7 @@ class UrlParser extends CstParser {
 
 	private multiPropertyTypeWithRefinements = this.RULE("multiPropertyTypeWithRefinements", () => {
 		this.AT_LEAST_ONE({
-			DEF: () => this.OR([
-				{ ALT: () => this.CONSUME(Token.Townhouses) },
-				{ ALT: () => this.CONSUME(Token.Houses) },
-				{ ALT: () => this.CONSUME(Token.Condos) },
-				{ ALT: () => this.CONSUME(Token.Apartments) },
-			])
+			DEF: () => this.SUBRULE(this.propertyType)
 		});
 		this.SUBRULE(this.refinements);
 	});
